@@ -19,7 +19,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class EarthquakeActivity extends AppCompatActivity {
 
@@ -30,15 +33,17 @@ public class EarthquakeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         // Create a fake list of earthquake locations.
         ArrayList<Earthquake> earthquakes = new ArrayList<Earthquake>();
-        earthquakes.add(new Earthquake("San Francisco", "2/2/2016","7.2"));
-        earthquakes.add(new Earthquake("London", "8/29/1994", "6.5"));
-        earthquakes.add(new Earthquake("Tokyo", "12/25/2004", "4.8"));
-        earthquakes.add(new Earthquake("Mexico City", "5/14/2012", "4.3"));
-        earthquakes.add(new Earthquake("Moscow", "3/26/1968", "8.5"));
-        earthquakes.add(new Earthquake("Rio de Janeiro", "6/12/2000", "2.3"));
-        earthquakes.add(new Earthquake("Paris", "7/15/2010", "6.9"));
+        earthquakes.add(new Earthquake("San Francisco", parseStringDate("02/02/2016"),Float.valueOf("7.2")));
+        earthquakes.add(new Earthquake("London", parseStringDate("8/29/1994"), Float.valueOf("6.5")));
+        earthquakes.add(new Earthquake("Tokyo", parseStringDate("12/25/2004"), Float.valueOf("4.8")));
+        earthquakes.add(new Earthquake("Mexico City", parseStringDate("5/14/2012"), Float.valueOf("4.3")));
+        earthquakes.add(new Earthquake("Moscow", parseStringDate("3/26/1968"), Float.valueOf("8.5")));
+        earthquakes.add(new Earthquake("Rio de Janeiro", parseStringDate("6/12/2000"), Float.valueOf("2.3")));
+        earthquakes.add(new Earthquake("Paris", parseStringDate("7/15/2010"), Float.valueOf("6.9")));
 
 
         // Create a new {@link ArrayAdapter} of earthquakes
@@ -49,4 +54,16 @@ public class EarthquakeActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.listview_earthquake);
         listView.setAdapter(eAdapter);
     }
+
+    private Date parseStringDate(String stDate) {
+            //formatter for date
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            Date dDate = new Date();
+
+            try {
+                dDate = sdf.parse(stDate);
+            } catch(ParseException e) {
+            }
+            return dDate;
+        }
 }
