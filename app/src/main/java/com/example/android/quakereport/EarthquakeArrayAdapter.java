@@ -1,14 +1,19 @@
 package com.example.android.quakereport;
 
 import android.app.Activity;
+import android.graphics.drawable.GradientDrawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 class EarthquakeArrayAdapter extends ArrayAdapter<Earthquake>{
 
@@ -53,6 +58,15 @@ class EarthquakeArrayAdapter extends ArrayAdapter<Earthquake>{
 
         // Find the TextView in the earthquake_activity.xml layout with the ID magnitude
         TextView magTextView = (TextView) listItemView.findViewById(R.id.magnitude);
+        // Set the proper background color on the magnitude circle.
+        // Fetch the background from the TextView, which is a GradientDrawable.
+        GradientDrawable magnitudeCircle = (GradientDrawable) magTextView.getBackground();
+
+        // Get the appropriate background color based on the current earthquake magnitude
+        int magnitudeColor = getMagnitudeColor(currentEarthquake.getEventMag());
+
+        // Set the color on the magnitude circle
+        magnitudeCircle.setColor(magnitudeColor);
         // Get the magnitude from the current Earthquake object and
         // set this text on the mag TextView
         magTextView.setText(currentEarthquake.getEventMag().toString());
@@ -67,12 +81,54 @@ class EarthquakeArrayAdapter extends ArrayAdapter<Earthquake>{
         TextView dateView = (TextView) listItemView.findViewById(R.id.date);
         // Get the date from the current Earthquake object and
         // set the date to TextView
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        dateView.setText(sdf.format(currentEarthquake.getEventDate()));
+        //SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        //dateView.setText(sdf.format(currentEarthquake.getEventDate()));
+        DateFormat gdti = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
+        dateView.setText(gdti.format(currentEarthquake.getEventDate()));
+        //dateView.setText(currentEarthquake.getEventDate());
 
         // Return the whole list item layout (containing 3 TextViews)
         // so that it can be shown in the ListView
         return listItemView;
+    }
+
+    private int getMagnitudeColor(Double mag) {
+        int magnitudeColorResourceId;
+        int magnitudeFloor = (int) Math.floor(mag);
+        switch (magnitudeFloor) {
+            case 0:
+            case 1:
+                magnitudeColorResourceId = R.color.magnitude1;
+                break;
+            case 2:
+                magnitudeColorResourceId = R.color.magnitude2;
+                break;
+            case 3:
+                magnitudeColorResourceId = R.color.magnitude3;
+                break;
+            case 4:
+                magnitudeColorResourceId = R.color.magnitude4;
+                break;
+            case 5:
+                magnitudeColorResourceId = R.color.magnitude5;
+                break;
+            case 6:
+                magnitudeColorResourceId = R.color.magnitude6;
+                break;
+            case 7:
+                magnitudeColorResourceId = R.color.magnitude7;
+                break;
+            case 8:
+                magnitudeColorResourceId = R.color.magnitude8;
+                break;
+            case 9:
+                magnitudeColorResourceId = R.color.magnitude9;
+                break;
+            default:
+                magnitudeColorResourceId = R.color.magnitude10plus;
+                break;
+        }
+        return ContextCompat.getColor(getContext(), magnitudeColorResourceId);
     }
 
 }

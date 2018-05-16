@@ -35,15 +35,18 @@ public class EarthquakeActivity extends AppCompatActivity {
 
 
 
-        // Create a fake list of earthquake locations.
+        /** Create a fake list of earthquake locations.
         ArrayList<Earthquake> earthquakes = new ArrayList<Earthquake>();
-        earthquakes.add(new Earthquake("San Francisco", parseStringDate("02/02/2016"),Float.valueOf("7.2")));
-        earthquakes.add(new Earthquake("London", parseStringDate("8/29/1994"), Float.valueOf("6.5")));
-        earthquakes.add(new Earthquake("Tokyo", parseStringDate("12/25/2004"), Float.valueOf("4.8")));
-        earthquakes.add(new Earthquake("Mexico City", parseStringDate("5/14/2012"), Float.valueOf("4.3")));
-        earthquakes.add(new Earthquake("Moscow", parseStringDate("3/26/1968"), Float.valueOf("8.5")));
-        earthquakes.add(new Earthquake("Rio de Janeiro", parseStringDate("6/12/2000"), Float.valueOf("2.3")));
-        earthquakes.add(new Earthquake("Paris", parseStringDate("7/15/2010"), Float.valueOf("6.9")));
+        earthquakes.add(new Earthquake("San Francisco", parseStringDate("02/02/2016"), Double.valueOf("7.2")));
+        earthquakes.add(new Earthquake("London", parseStringDate("8/29/1994"), Double.valueOf("6.5")));
+        earthquakes.add(new Earthquake("Tokyo", parseStringDate("12/25/2004"), Double.valueOf("4.8")));
+        earthquakes.add(new Earthquake("Mexico City", parseStringDate("5/14/2012"), Double.valueOf("4.3")));
+        earthquakes.add(new Earthquake("Moscow", parseStringDate("3/26/1968"), Double.valueOf("8.5")));
+        earthquakes.add(new Earthquake("Rio de Janeiro", parseStringDate("6/12/2000"), Double.valueOf("2.3")));
+        earthquakes.add(new Earthquake("Paris", parseStringDate("7/15/2010"), Double.valueOf("6.9")));
+         */
+
+        ArrayList<Earthquake> earthquakes = QueryUtils.extractEarthquakes();
 
 
         // Create a new {@link ArrayAdapter} of earthquakes

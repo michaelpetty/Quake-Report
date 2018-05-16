@@ -1,14 +1,12 @@
 package com.example.android.quakereport;
 
-import java.util.Date;
-
 public class Earthquake {
 
     private String mEventCity;
-    private Date mEventDate;
-    private Float mEventMag;
+    private Long mEventDate;
+    private Double mEventMag;
 
-    public Earthquake(String eventCity, Date eventDate, Float eventMag) {
+    public Earthquake(String eventCity, Long eventDate, Double eventMag) {
         mEventCity = eventCity;
         mEventDate = eventDate;
         mEventMag = eventMag;
@@ -18,11 +16,11 @@ public class Earthquake {
         return mEventCity;
     }
 
-    public Date getEventDate() {
+    public Long getEventDate() {
         return mEventDate;
     }
 
-    public Float getEventMag() {
+    public Double getEventMag() {
         return mEventMag;
     }
 }
