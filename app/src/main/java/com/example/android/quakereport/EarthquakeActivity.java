@@ -15,58 +15,142 @@
  */
 package com.example.android.quakereport;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ListView;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class EarthquakeActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = EarthquakeActivity.class.getName();
+    // url to get the earthquake list from usgs
+    private static final String USGS_JSON_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmag=6&limit=10";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
-        /** Create a fake list of earthquake locations.
-        ArrayList<Earthquake> earthquakes = new ArrayList<Earthquake>();
-        earthquakes.add(new Earthquake("San Francisco", parseStringDate("02/02/2016"), Double.valueOf("7.2")));
-        earthquakes.add(new Earthquake("London", parseStringDate("8/29/1994"), Double.valueOf("6.5")));
-        earthquakes.add(new Earthquake("Tokyo", parseStringDate("12/25/2004"), Double.valueOf("4.8")));
-        earthquakes.add(new Earthquake("Mexico City", parseStringDate("5/14/2012"), Double.valueOf("4.3")));
-        earthquakes.add(new Earthquake("Moscow", parseStringDate("3/26/1968"), Double.valueOf("8.5")));
-        earthquakes.add(new Earthquake("Rio de Janeiro", parseStringDate("6/12/2000"), Double.valueOf("2.3")));
-        earthquakes.add(new Earthquake("Paris", parseStringDate("7/15/2010"), Double.valueOf("6.9")));
-         */
-
-        ArrayList<Earthquake> earthquakes = QueryUtils.extractEarthquakes();
-
-
-        // Create a new {@link ArrayAdapter} of earthquakes
-        EarthquakeArrayAdapter eAdapter = new EarthquakeArrayAdapter(
-                this, earthquakes);
-
-        // Get a reference to the ListView, and attach the adapter to the listView.
-        ListView listView = (ListView) findViewById(R.id.listview_earthquake);
-        listView.setAdapter(eAdapter);
+        // call usgs and get the JSON for latest earthquakes
+        USGSAsyncTask task = new USGSAsyncTask();
+        task.execute();
     }
 
-    private Date parseStringDate(String stDate) {
-            //formatter for date
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-            Date dDate = new Date();
+    /**
+     * {@link AsyncTask} to perform the network request on a background thread, and then
+     * update the UI with the first earthquake in the response.
+     */
+    private class USGSAsyncTask extends AsyncTask<URL, Void, String> {
 
+        @Override
+        protected String doInBackground(URL... urls) {
+
+            // Create URL object
+            URL url = createUrl(USGS_JSON_URL);
+
+            // Perform HTTP request to the URL and receive a JSON response back
+            String jsonResponse = "";
             try {
-                dDate = sdf.parse(stDate);
-            } catch(ParseException e) {
+                jsonResponse = makeHttpRequest(url);
+            } catch (IOException e) {
+                // TODO Handle the IOException
             }
-            return dDate;
+
+            return jsonResponse;
+
         }
+
+        @Override
+        protected void onPostExecute(String jsonResponse) {
+            if (jsonResponse == null) {
+                return;
+            }
+
+            ArrayList<Earthquake> earthquakes = QueryUtils.extractEarthquakes(jsonResponse);
+
+
+            // Create a new {@link ArrayAdapter} of earthquakes
+            EarthquakeArrayAdapter eAdapter = new EarthquakeArrayAdapter(
+                    EarthquakeActivity.this, earthquakes);
+
+            // Get a reference to the ListView, and attach the adapter to the listView.
+            ListView listView = findViewById(R.id.listview_earthquake);
+            listView.setAdapter(eAdapter);
+
+        }
+        /**
+         * Returns new URL object from the given string URL.
+         */
+        private URL createUrl(String stringUrl) {
+            URL url;
+            try {
+                url = new URL(stringUrl);
+            } catch (MalformedURLException exception) {
+                Log.e(LOG_TAG, "Error with creating URL", exception);
+                return null;
+            }
+            return url;
+        }
+
+        /**
+         * Make an HTTP request to the given URL and return a String as the response.
+         */
+        private String makeHttpRequest(URL url) throws IOException {
+            String jsonResponse = "";
+            HttpURLConnection urlConnection = null;
+            InputStream inputStream = null;
+            try {
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setReadTimeout(10000 /* milliseconds */);
+                urlConnection.setConnectTimeout(15000 /* milliseconds */);
+                urlConnection.connect();
+                inputStream = urlConnection.getInputStream();
+                jsonResponse = readFromStream(inputStream);
+            } catch (IOException e) {
+                // TODO: Handle the exception
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (inputStream != null) {
+                    // function must handle java.io.IOException here
+                    inputStream.close();
+                }
+            }
+            return jsonResponse;
+        }
+
+        /**
+         * Convert the {@link InputStream} into a String which contains the
+         * whole JSON response from the server.
+         */
+        private String readFromStream(InputStream inputStream) throws IOException {
+            StringBuilder output = new StringBuilder();
+            if (inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+                BufferedReader reader = new BufferedReader(inputStreamReader);
+                String line = reader.readLine();
+                while (line != null) {
+                    output.append(line);
+                    line = reader.readLine();
+                }
+            }
+            return output.toString();
+        }
+
+    }
+
 }
